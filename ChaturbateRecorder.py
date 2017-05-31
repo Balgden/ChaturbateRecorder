@@ -24,6 +24,17 @@ def time_limit(seconds):
     finally:
         signal.alarm(0)
 
+class checkForModels:
+    def getModels(self):
+        pages = []
+        for gender in genders:
+            for i in range(1, 50):
+                pages.append([i, gender])
+        p = multiprocessing.Pool(3)
+        online = p.map(getOnlineModels, pages)
+        p.terminate()
+        return online
+
 recording = []
 def getOnlineModels(args):
     global lastPage
@@ -79,6 +90,7 @@ def startRecording(model):
                 except:
                     f.close()
                     recording.remove(model)
+                    return
 
         if model in recording:
             recording.remove(model)
@@ -88,6 +100,7 @@ def startRecording(model):
 
 
 if __name__ == '__main__':
+    checker = checkForModels()
     print()
     sys.stdout.write("\033[F")
     while True:
@@ -96,13 +109,9 @@ if __name__ == '__main__':
         sys.stdout.write("\033[K")
         print("the following models are being recorded: {}".format(recording), end="\r")
         #sys.stdout.write("\033[F")
-        pages = []
-        for gender in genders:
-            lastPage = {'female':100, 'couple':100}
-            for i in range(1,50):
-                pages.append([i, gender])
-        p = multiprocessing.Pool(3)
-        online = p.map(getOnlineModels, pages)
+        lastPage = {'female': 100, 'couple': 100}
+        online = []
+        online = checker.getModels()
         online = [ent for sublist in online for ent in sublist]
         online = list(set(online))
         with open(wishlist) as f:
@@ -114,7 +123,7 @@ if __name__ == '__main__':
                         thread.start()
         f.close()
         sys.stdout.write("\033[F")
-        for i in range(20, 0, -1):
+        for i in range(5, 0, -1):
             sys.stdout.write("\033[K")
             print("{} model(s) are being recorded. Next check in {} seconds".format(len(recording), i))
             sys.stdout.write("\033[K")
