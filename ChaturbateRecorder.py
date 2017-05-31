@@ -77,6 +77,7 @@ def startRecording(model):
                     data = fd.read(1024)
                     f.write(data)
                 except:
+                    f.close()
                     recording.remove(model)
 
         if model in recording:
@@ -111,6 +112,7 @@ if __name__ == '__main__':
                     if theModel.lower() in online and theModel.lower() not in recording:
                         thread = threading.Thread(target=startRecording, args=(theModel.lower(),))
                         thread.start()
+        f.close()
         sys.stdout.write("\033[F")
         for i in range(20, 0, -1):
             sys.stdout.write("\033[K")
